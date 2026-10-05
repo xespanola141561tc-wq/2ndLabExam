@@ -1,5 +1,5 @@
 import { type Student } from '@/components/StudentCard';
-import { API_BASE_URL } from '@/constants/api';
+import { API_ENDPOINTS } from '@/constants/api';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -9,7 +9,7 @@ export default function StudentDetailsScreen() {
   const { id: routeId } = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(routeId) ? routeId[0] : routeId;
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,13 +29,14 @@ export default function StudentDetailsScreen() {
 
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(id)}`, {
+        const response = await fetch(API_ENDPOINTS.studentById(id), {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           signal: controller.signal,
         });
 
         if (response.status === 401) {
-          throw new Error('Your session has expired. Please sign in again.');
+          await logout();
+          return;
         }
         if (response.status === 404) {
           throw new Error('Student not found.');
@@ -50,6 +51,9 @@ export default function StudentDetailsScreen() {
         }
 
         const record = payload as Record<string, unknown>;
+        const company = record.company && typeof record.company === 'object'
+          ? record.company as Record<string, unknown>
+          : undefined;
         const name = typeof record.name === 'string'
           ? record.name
           : [record.firstName, record.lastName]
@@ -60,7 +64,9 @@ export default function StudentDetailsScreen() {
           id: typeof record.id === 'string' || typeof record.id === 'number' ? record.id : id,
           name,
           email: typeof record.email === 'string' ? record.email : undefined,
-          course: typeof record.course === 'string' ? record.course : undefined,
+          course: typeof record.course === 'string'
+            ? record.course
+            : typeof company?.department === 'string' ? company.department : undefined,
         });
       } catch (cause) {
         if (controller.signal.aborted) return;
@@ -73,7 +79,7 @@ export default function StudentDetailsScreen() {
 
     void loadStudent();
     return () => controller.abort();
-  }, [id, token]);
+  }, [id, token, logout]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

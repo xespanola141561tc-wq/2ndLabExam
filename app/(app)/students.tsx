@@ -76,11 +76,16 @@ export default function StudentsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Students</Text>
+      <View style={styles.heading}>
+        <Text style={styles.eyebrow}>DIRECTORY</Text>
+        <Text style={styles.title}>Students</Text>
+        <Text style={styles.subtitle}>Find a student and view their details.</Text>
+      </View>
       <TextInput
         style={styles.input}
         accessibilityLabel="Search students"
         placeholder="Search by name"
+        placeholderTextColor="#9aa7b8"
         value={search}
         onChangeText={setSearch}
       />
@@ -101,6 +106,13 @@ export default function StudentsScreen() {
           data={filteredStudents}
           keyExtractor={(item, index) => String(item.id ?? index)}
           renderItem={({ item }) => <StudentCard student={item} />}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <Text style={styles.resultCount}>
+              {search.trim() ? `${filteredStudents.length} matching students` : `${students.length} students`}
+            </Text>
+          }
           ListEmptyComponent={
             <View style={styles.state}>
               <Text style={styles.text}>
@@ -115,9 +127,14 @@ export default function StudentsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, backgroundColor: '#f2f5fa' },
-  title: { fontSize: 28, fontWeight: '700', color: '#17324d', marginBottom: 20 },
-  input: { padding: 14, borderWidth: 1, borderColor: '#c6d2e1', borderRadius: 8, backgroundColor: '#ffffff', color: '#17324d', marginBottom: 20 },
+  container: { flex: 1, width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 20, paddingTop: 22, backgroundColor: '#f3f6fb' },
+  heading: { gap: 5, marginBottom: 18 },
+  eyebrow: { color: '#4674bd', fontSize: 11, fontWeight: '800', letterSpacing: 1.4 },
+  title: { fontSize: 30, fontWeight: '800', letterSpacing: -0.5, color: '#142d49' },
+  subtitle: { color: '#728198', fontSize: 14, lineHeight: 20 },
+  input: { paddingHorizontal: 16, paddingVertical: 14, borderWidth: 1, borderColor: '#e0e7f0', borderRadius: 14, backgroundColor: '#ffffff', color: '#17324d', fontSize: 15, marginBottom: 10 },
+  listContent: { paddingBottom: 24 },
+  resultCount: { color: '#8492a6', fontSize: 12, fontWeight: '700', marginBottom: 12, marginTop: 4 },
   state: { padding: 24, gap: 12, alignItems: 'center' },
   text: { color: '#536579' },
   error: { color: '#b42318' },

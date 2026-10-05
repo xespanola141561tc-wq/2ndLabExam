@@ -25,8 +25,8 @@ function RootNavigator() {
   }
 
   return (
-    <Stack screenOptions={{ headerTintColor: '#17324d' }}>
-      <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
+    <Stack initialRouteName="(app)" screenOptions={{ headerTintColor: '#17324d' }}>
+      <Stack.Screen name="sign-in" options={{ title: 'Sign In', headerShown: false }} />
       <Stack.Screen name="(app)" options={{ headerShown: false }} />
       <Stack.Screen name="student/[id]" options={{ title: 'Student Details' }} />
     </Stack>

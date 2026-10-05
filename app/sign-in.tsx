@@ -102,13 +102,21 @@ export default function SignInScreen() {
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.card}>
         <Text style={styles.eyebrow}>CCE106 • PRACTICAL EXAMINATION</Text>
+        <View style={styles.brandRow}>
+          <View style={styles.brandMark}><Text style={styles.brandMarkText}>SS</Text></View>
+          <View style={styles.brandCopy}>
+            <Text style={styles.brandName}>STUDENT PORTAL</Text>
+            <Text style={styles.brandSub}>CCE106 · PRACTICAL EXAM</Text>
+          </View>
+        </View>
         <Text style={styles.title}>Student Service Portal</Text>
-        <Text style={styles.subtitle}>Sign in to access student services.</Text>
+        <Text style={styles.subtitle}>Welcome back. Sign in to continue to your student services.</Text>
         <Text style={styles.label}>Username</Text>
         <TextInput
           style={styles.input}
           accessibilityLabel="Username"
           placeholder="emilys"
+          placeholderTextColor="#9aa7b8"
           value={username}
           onChangeText={updateUsername}
           autoCapitalize="none"
@@ -119,6 +127,7 @@ export default function SignInScreen() {
           style={styles.input}
           accessibilityLabel="Password"
           placeholder="Enter your password"
+          placeholderTextColor="#9aa7b8"
           value={password}
           onChangeText={updatePassword}
           secureTextEntry
@@ -130,23 +139,38 @@ export default function SignInScreen() {
         <Pressable accessibilityRole="button" style={styles.button} onPress={handleLogin} disabled={loading}>
           <Text style={styles.buttonText}>{loading ? 'Signing in…' : 'Login'}</Text>
         </Pressable>
-        <Text style={styles.note}>Demo credentials: emilys / emilyspass</Text>
+        <View style={styles.demoBox}>
+          <Text style={styles.demoTitle}>DEMO ACCOUNT</Text>
+          <Text style={styles.note}>Username  <Text style={styles.credential}>emilys</Text></Text>
+          <Text style={styles.note}>Password  <Text style={styles.credential}>emilyspass</Text></Text>
+        </View>
       </View>
+      <Text style={styles.footer}>SECURE STUDENT ACCESS</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: 'center', padding: 24, backgroundColor: '#f2f5fa' },
-  card: { width: '100%', maxWidth: 440, alignSelf: 'center', padding: 24, borderRadius: 16, backgroundColor: '#ffffff' },
-  eyebrow: { fontSize: 11, fontWeight: '700', color: '#245bb2', marginBottom: 12 },
-  title: { fontSize: 28, fontWeight: '700', color: '#17324d' },
-  subtitle: { color: '#536579', marginTop: 8, marginBottom: 24 },
-  label: { color: '#17324d', fontWeight: '600', marginBottom: 8 },
-  input: { borderWidth: 1, borderColor: '#c6d2e1', borderRadius: 8, padding: 14, fontSize: 16, marginBottom: 16, color: '#17324d' },
-  feedback: { minHeight: 28 },
-  error: { color: '#b42318' },
-  button: { backgroundColor: '#245bb2', padding: 15, borderRadius: 8, alignItems: 'center' },
-  buttonText: { color: '#ffffff', fontWeight: '700' },
-  note: { color: '#536579', fontSize: 12, marginTop: 20 },
+  container: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 22, backgroundColor: '#f3f6fb' },
+  card: { width: '100%', maxWidth: 460, alignSelf: 'center', padding: 25, borderRadius: 24, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e7edf5', shadowColor: '#1c3554', shadowOpacity: 0.08, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 3 },
+  eyebrow: { display: 'none' },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 20 },
+  brandMark: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 16, backgroundColor: '#e8f0ff' },
+  brandMarkText: { color: '#245bb2', fontSize: 14, fontWeight: '900', letterSpacing: 0.5 },
+  brandCopy: { gap: 4 },
+  brandName: { color: '#17324d', fontSize: 11, fontWeight: '800', letterSpacing: 1.3 },
+  brandSub: { color: '#7790b0', fontSize: 10, fontWeight: '700', letterSpacing: 0.7 },
+  title: { fontSize: 29, lineHeight: 35, fontWeight: '800', letterSpacing: -0.6, color: '#142d49' },
+  subtitle: { color: '#728198', fontSize: 14, lineHeight: 21, marginTop: 7, marginBottom: 25 },
+  label: { color: '#263d59', fontSize: 13, fontWeight: '700', marginBottom: 8 },
+  input: { borderWidth: 1, borderColor: '#dfe7f1', borderRadius: 12, paddingHorizontal: 15, paddingVertical: 13, fontSize: 15, marginBottom: 17, color: '#17324d', backgroundColor: '#fbfcfe' },
+  feedback: { minHeight: 28, justifyContent: 'center' },
+  error: { color: '#a52a23', backgroundColor: '#fff0ee', borderRadius: 9, paddingHorizontal: 11, paddingVertical: 9, fontSize: 12, overflow: 'hidden' },
+  button: { backgroundColor: '#245bb2', padding: 15, borderRadius: 12, alignItems: 'center', shadowColor: '#245bb2', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  buttonText: { color: '#ffffff', fontWeight: '800', fontSize: 15 },
+  demoBox: { marginTop: 22, padding: 14, borderRadius: 13, backgroundColor: '#f5f8fc', borderWidth: 1, borderColor: '#edf1f6', gap: 4 },
+  demoTitle: { color: '#8492a6', fontSize: 9, fontWeight: '800', letterSpacing: 1.2, marginBottom: 3 },
+  note: { color: '#718096', fontSize: 12, lineHeight: 18 },
+  credential: { color: '#334c6b', fontWeight: '700' },
+  footer: { color: '#a0aabc', fontSize: 9, fontWeight: '700', letterSpacing: 1.3, marginTop: 18 },
 });

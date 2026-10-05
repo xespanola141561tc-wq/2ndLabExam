@@ -5,41 +5,40 @@
 ### Student Information
 
 Name: Xerted Joy Espanola
-
 Section: CCE10 -2063
-
 Date: 10-05-2026
 
 ### Required Features
 
-- [ ] Login
-- [ ] Authentication state
-- [ ] Secure token storage
-- [ ] Protected navigation
-- [ ] Dashboard
-- [ ] Student API request
-- [ ] Loading state
-- [ ] Error state
-- [ ] Empty state
-- [ ] Search/filter
-- [ ] Dynamic student details
-- [ ] Profile
-- [ ] Session restoration
-- [ ] Logout
+- [x] Login
+- [x] Authentication state
+- [x] Secure token storage on Android/iOS
+- [x] Protected navigation
+- [x] Dashboard
+- [x] Student API request
+- [x] Loading state
+- [x] Error state
+- [x] Empty state
+- [x] Search/filter
+- [x] Dynamic student details
+- [x] Profile
+- [x] Session restoration
+- [x] Logout
 
 ### API
 
-Base URL: `REPLACE_WITH_EXAM_API` (set in `constants/api.ts`)
+The project uses the [DummyJSON API](https://dummyjson.com), matching the Postman
+collection. The base URL is configured in `constants/api.ts`.
 
-POST /login
+- `POST /auth/login`
+- `GET /users`
+- `GET /users/{id}`
+- `GET /auth/me`
 
-GET /students
+Demo login: `emilys` / `emilyspass`.
 
-GET /students/{id}
-
-GET /profile
-
-Use the instructor's API documentation for payloads and response fields.
+The student directory uses the `/users` endpoints and maps DummyJSON user fields
+to the portal's student card fields.
 
 ### How to Run
 
@@ -48,21 +47,9 @@ npm install
 npx expo start
 ```
 
-Press `w` for web, or run `npm run web` directly.
-
-The starter opens the dashboard without authentication so its screens can be inspected.
-Use **Open Sign In** to preview the login screen. Login, logout, and View Details
-buttons intentionally do nothing until their TODOs are completed. Student screens
-initially show loading until students implement the loaders. Preview the detail
-layout on web at `/student/1`; this does not create a sample API record.
-
-Search for `TODO EXAM` throughout the project. No requests or credentials are
-provided. Protect both the application tabs and the student detail route.
-
-Expo SecureStore is used only in `context/AuthContext.tsx`. Its methods are not
-implemented in this starter. SecureStore supports native platforms, not web;
-check availability before calling it and verify secure session persistence on
-Android/iOS. See the [Expo SDK 54 SecureStore documentation](https://docs.expo.dev/versions/v54.0.0/sdk/securestore/).
+Press `w` for web, or run `npm run web` directly. SecureStore persistence is
+available on Android and iOS; web sessions are kept in memory for the current tab.
+See the [Expo SDK 54 SecureStore documentation](https://docs.expo.dev/versions/v54.0.0/sdk/securestore/).
 
 Compiler and lint checks:
 
@@ -73,9 +60,7 @@ npm run lint
 
 ### Required Git Commits
 
-Students must create at least five meaningful commits.
-
-Suggested examples:
+Students must create at least five meaningful commits. Suggested examples:
 
 - `exam: setup navigation`
 - `exam: implement login`
