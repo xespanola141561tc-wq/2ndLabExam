@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Student Service Portal",
+    "name": "CCE 106 Student Portal",
     "slug": "reactnativestartup",
     "version": "1.0.0",
     "orientation": "portrait",

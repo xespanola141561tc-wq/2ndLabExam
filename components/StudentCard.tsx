@@ -1,3 +1,5 @@
+import { useRouter } from 'expo-router';
+import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 // TODO EXAM: Match these fields to the provided API response.
@@ -9,20 +11,30 @@ export type Student = {
 };
 
 export default function StudentCard({ student }: { student: Student }) {
+  const router = useRouter();
+
   const handleViewDetails = () => {
-    // TODO EXAM: Check that the student has an id.
-    // TODO EXAM: Use Expo Router to navigate to /student/[id] with this student's id.
+    if (student.id === undefined || student.id === null) {
+      return;
+    }
+
+    router.push({
+      pathname: '/student/[id]',
+      params: { id: String(student.id) },
+    });
   };
 
-  return (
-    <View style={styles.card}>
-      <Text style={styles.name}>{student.name || 'Name not available'}</Text>
-      <Text style={styles.text}>{student.email || 'Email not available'}</Text>
-      {student.course ? <Text style={styles.text}>{student.course}</Text> : null}
-      <Pressable accessibilityRole="button" style={styles.button} onPress={handleViewDetails}>
-        <Text style={styles.buttonText}>View Details</Text>
-      </Pressable>
-    </View>
+  return React.createElement(
+    View,
+    { style: styles.card },
+    React.createElement(Text, { style: styles.name }, student.name || 'Name not available'),
+    React.createElement(Text, { style: styles.text }, student.email || 'Email not available'),
+    student.course ? React.createElement(Text, { style: styles.text }, student.course) : null,
+    React.createElement(
+      Pressable,
+      { accessibilityRole: 'button', style: styles.button, onPress: handleViewDetails },
+      React.createElement(Text, { style: styles.buttonText }, 'View Details')
+    )
   );
 }
 
