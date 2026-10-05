@@ -1,20 +1,8 @@
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { API_BASE_URL } from '@/constants/api';
-import type { User } from '@/context/AuthContext';
 import { useAuth } from '@/hooks/useAuth';
-
-type LoginResponse = {
-  accessToken?: unknown;
-  user?: unknown;
-  message?: unknown;
-  id?: unknown;
-  username?: unknown;
-  email?: unknown;
-  firstName?: unknown;
-  lastName?: unknown;
-};
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -27,54 +15,54 @@ export default function SignInScreen() {
   const handleLogin = async () => {
     const normalizedUsername = username.trim();
 
-    if (!normalizedUsername || !password) {
-      setError('Enter your username and password.');
+    if (!normalizedUsername || !password.trim()) {
+      setError('Please enter your username and password.');
       return;
     }
 
     setLoading(true);
     setError('');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: normalizedUsername, password }),
+        signal: controller.signal,
       });
 
-      let payload: LoginResponse;
-      try {
-        payload = (await response.json()) as LoginResponse;
-      } catch {
-        throw new Error('The server returned an invalid response.');
-      }
+      const payload = await response.json();
 
       if (!response.ok) {
-        throw new Error(typeof payload.message === 'string' ? payload.message : 'Unable to sign in.');
+        throw new Error(payload?.message || 'Unable to sign in.');
       }
 
-      if (typeof payload.accessToken !== 'string') {
-        throw new Error('The API returned an invalid login response.');
-      }
-
-      const apiUser = payload.user && typeof payload.user === 'object'
-        ? payload.user as Record<string, unknown>
-        : payload;
-      const firstName = typeof apiUser.firstName === 'string' ? apiUser.firstName : '';
-      const lastName = typeof apiUser.lastName === 'string' ? apiUser.lastName : '';
-      const name = [firstName, lastName].filter(Boolean).join(' ') || normalizedUsername;
-      const user: User = {
-        id: typeof apiUser.id === 'string' || typeof apiUser.id === 'number' ? apiUser.id : undefined,
-        name,
-        email: typeof apiUser.email === 'string' ? apiUser.email : undefined,
+      const sessionUser = payload?.user ?? {
+        id: payload?.userId ?? payload?.id,
+        name: payload?.username ?? normalizedUsername,
+        role: payload?.role ?? 'student',
       };
 
-      await login(payload.accessToken, user);
+      login(payload?.token, {
+        id: sessionUser.id,
+        name: sessionUser.name ?? normalizedUsername,
+        role: sessionUser.role ?? 'student',
+      });
+
       setPassword('');
       router.replace('/(app)');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to sign in. Check your connection and try again.');
+      setError(
+        cause instanceof Error && cause.name === 'AbortError'
+          ? 'Login timed out. Check your internet connection and try again.'
+          : cause instanceof Error
+            ? cause.message
+            : 'Unable to sign in. Check your connection and try again.'
+      );
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -85,16 +73,18 @@ export default function SignInScreen() {
         <Text style={styles.eyebrow}>CCE106 • PRACTICAL EXAMINATION</Text>
         <Text style={styles.title}>Student Service Portal</Text>
         <Text style={styles.subtitle}>Sign in to access student services.</Text>
+
         <Text style={styles.label}>Username</Text>
         <TextInput
           style={styles.input}
           accessibilityLabel="Username"
-          placeholder="Enter your username"
+          placeholder="emilys"
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
           autoCorrect={false}
         />
+
         <Text style={styles.label}>Password</Text>
         <TextInput
           style={styles.input}
@@ -104,13 +94,17 @@ export default function SignInScreen() {
           onChangeText={setPassword}
           secureTextEntry
         />
+
         <View style={styles.feedback} accessibilityLiveRegion="polite">
           {loading && <ActivityIndicator color="#245bb2" accessibilityLabel="Signing in" />}
           {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
+
         <Pressable accessibilityRole="button" style={styles.button} onPress={handleLogin} disabled={loading}>
           <Text style={styles.buttonText}>{loading ? 'Signing in…' : 'Login'}</Text>
         </Pressable>
+
+        <Text style={styles.note}>Demo credentials: emilys / emilyspass</Text>
       </View>
     </ScrollView>
   );
@@ -128,4 +122,5 @@ const styles = StyleSheet.create({
   error: { color: '#b42318' },
   button: { backgroundColor: '#245bb2', padding: 15, borderRadius: 8, alignItems: 'center' },
   buttonText: { color: '#ffffff', fontWeight: '700' },
+  note: { color: '#536579', fontSize: 12, marginTop: 20 },
 });
