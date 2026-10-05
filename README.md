@@ -4,11 +4,11 @@
 
 ### Student Information
 
-Name:
+Name: Xerted Joy Espanola
 
-Section:
+Section: CCE10 -2063
 
-Date:
+Date: 10-05-2026
 
 ### Required Features
 
