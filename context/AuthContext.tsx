@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars -- Setters and imports are reserved for exam TODOs. */
 import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 export type User = {
@@ -27,15 +28,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authLoading, setAuthLoading] = useState(false);
 
   const login = async (accessToken: string, userData: User) => {
-    // TODO EXAM: Save the access token with SecureStore.setItemAsync().
-    // TODO EXAM: Update token state and user state with the supplied arguments.
-    // TODO EXAM: Handle storage failures; never store the password.
+    if (Platform.OS !== 'web') {
+      await SecureStore.setItemAsync('accessToken', accessToken);
+    }
+    setToken(accessToken);
+    setUser(userData);
   };
 
   const logout = async () => {
-    // TODO EXAM: Delete the saved token using SecureStore.deleteItemAsync().
-    // TODO EXAM: Clear token state and user state.
-    // TODO EXAM: Handle storage errors and redirect to /sign-in after logout.
+    if (Platform.OS !== 'web') {
+      await SecureStore.deleteItemAsync('accessToken');
+    }
+    setToken(null);
+    setUser(null);
   };
 
   const restoreSession = async () => {

@@ -1,21 +1,82 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- Setters are reserved for the login exercise. */
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { API_BASE_URL } from '@/constants/api';
+import type { User } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
+
+type LoginResponse = {
+  accessToken?: unknown;
+  user?: unknown;
+  message?: unknown;
+  id?: unknown;
+  username?: unknown;
+  email?: unknown;
+  firstName?: unknown;
+  lastName?: unknown;
+};
 
 export default function SignInScreen() {
-  const [email, setEmail] = useState('');
+  const router = useRouter();
+  const { login } = useAuth();
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    // TODO EXAM: 1. Validate email and password.
-    // TODO EXAM: 2. Set loading and clear previous errors.
-    // TODO EXAM: 3. POST to /login using fetch() and async/await.
-    // TODO EXAM: 4. Check response.ok and parse the returned JSON.
-    // TODO EXAM: 5. Pass the returned access token and user to the context login().
-    // TODO EXAM: 6. Navigate using router.replace() after successful authentication.
-    // TODO EXAM: 7. Handle login errors and stop loading in finally.
+    const normalizedUsername = username.trim();
+
+    if (!normalizedUsername || !password) {
+      setError('Enter your username and password.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: normalizedUsername, password }),
+      });
+
+      let payload: LoginResponse;
+      try {
+        payload = (await response.json()) as LoginResponse;
+      } catch {
+        throw new Error('The server returned an invalid response.');
+      }
+
+      if (!response.ok) {
+        throw new Error(typeof payload.message === 'string' ? payload.message : 'Unable to sign in.');
+      }
+
+      if (typeof payload.accessToken !== 'string') {
+        throw new Error('The API returned an invalid login response.');
+      }
+
+      const apiUser = payload.user && typeof payload.user === 'object'
+        ? payload.user as Record<string, unknown>
+        : payload;
+      const firstName = typeof apiUser.firstName === 'string' ? apiUser.firstName : '';
+      const lastName = typeof apiUser.lastName === 'string' ? apiUser.lastName : '';
+      const name = [firstName, lastName].filter(Boolean).join(' ') || normalizedUsername;
+      const user: User = {
+        id: typeof apiUser.id === 'string' || typeof apiUser.id === 'number' ? apiUser.id : undefined,
+        name,
+        email: typeof apiUser.email === 'string' ? apiUser.email : undefined,
+      };
+
+      await login(payload.accessToken, user);
+      setPassword('');
+      router.replace('/(app)');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to sign in. Check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -24,10 +85,25 @@ export default function SignInScreen() {
         <Text style={styles.eyebrow}>CCE106 • PRACTICAL EXAMINATION</Text>
         <Text style={styles.title}>Student Service Portal</Text>
         <Text style={styles.subtitle}>Sign in to access student services.</Text>
-        <Text style={styles.label}>Email</Text>
-        <TextInput style={styles.input} accessibilityLabel="Email" placeholder="student@example.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+        <Text style={styles.label}>Username</Text>
+        <TextInput
+          style={styles.input}
+          accessibilityLabel="Username"
+          placeholder="Enter your username"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
         <Text style={styles.label}>Password</Text>
-        <TextInput style={styles.input} accessibilityLabel="Password" placeholder="Enter your password" value={password} onChangeText={setPassword} secureTextEntry />
+        <TextInput
+          style={styles.input}
+          accessibilityLabel="Password"
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
         <View style={styles.feedback} accessibilityLiveRegion="polite">
           {loading && <ActivityIndicator color="#245bb2" accessibilityLabel="Signing in" />}
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -35,7 +111,6 @@ export default function SignInScreen() {
         <Pressable accessibilityRole="button" style={styles.button} onPress={handleLogin} disabled={loading}>
           <Text style={styles.buttonText}>{loading ? 'Signing in…' : 'Login'}</Text>
         </Pressable>
-        <Text style={styles.note}>Exam starter: login is not implemented yet.</Text>
       </View>
     </ScrollView>
   );
@@ -53,5 +128,4 @@ const styles = StyleSheet.create({
   error: { color: '#b42318' },
   button: { backgroundColor: '#245bb2', padding: 15, borderRadius: 8, alignItems: 'center' },
   buttonText: { color: '#ffffff', fontWeight: '700' },
-  note: { color: '#536579', fontSize: 12, marginTop: 20 },
 });

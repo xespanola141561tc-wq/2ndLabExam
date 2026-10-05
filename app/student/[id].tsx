@@ -29,7 +29,7 @@ export default function StudentDetailsScreen() {
 
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/students/${encodeURIComponent(id)}`, {
+        const response = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(id)}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           signal: controller.signal,
         });
