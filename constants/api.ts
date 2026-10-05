@@ -1,9 +1,10 @@
-// TODO EXAM: Use the API base URL provided by the instructor.
-export const API_BASE_URL = "https://jsonplaceholder.typicode.com";
+// DummyJSON API configured in the Postman collection.
+export const API_BASE_URL = 'https://dummyjson.com';
 
-// Expected endpoints:
-// POST /login
-// GET /students
-// GET /students/{id}
-// GET /profile
-// TODO EXAM: Confirm request/response fields against the instructor's API documentation.
+// Keep API paths in one place so screens use the same endpoint configuration.
+export const API_ENDPOINTS = {
+  login: `${API_BASE_URL}/auth/login`,
+  profile: `${API_BASE_URL}/auth/me`,
+  students: `${API_BASE_URL}/users`,
+  studentById: (id: string) => `${API_BASE_URL}/users/${encodeURIComponent(id)}`,
+} as const;
